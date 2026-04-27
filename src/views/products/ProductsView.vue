@@ -8,6 +8,11 @@
     </div>
 
     <el-table :data="products" border stripe v-loading="loading">
+      <el-table-column label="图片" width="100">
+        <template #default="{ row }">
+          <el-image v-if="row.imageUrl" :src="row.imageUrl" style="width:60px;height:60px" fit="cover" />
+        </template>
+      </el-table-column>
       <el-table-column prop="name" label="商品名" />
       <el-table-column label="分类" width="100">
         <template #default="{ row }">{{ categories.find(c => c.id === row.categoryId)?.name }}</template>
@@ -41,17 +46,26 @@
         <el-form-item label="名称">
           <el-input v-model="form.name" />
         </el-form-item>
-        <el-form-item label="图片URL">
-          <el-input v-model="form.imageUrl" placeholder="http://..." />
+        <el-form-item label="商品图片">
+          <el-upload
+            :action="uploadAction"
+            :headers="uploadHeaders"
+            :show-file-list="false"
+            :on-success="handleUploadSuccess"
+            :before-upload="beforeUpload"
+            accept="image/*">
+            <el-button size="small" type="primary">点击上传</el-button>
+          </el-upload>
+          <el-image v-if="form.imageUrl" :src="form.imageUrl" style="width:100px;height:100px;margin-top:10px" fit="cover" />
         </el-form-item>
         <el-form-item label="价格">
-          <el-input-number v-model="form.price" :precision="2" :min="0" />
+          <el-input-number v-model="form.price" :precision="2" :min="0" style="width:100%" />
         </el-form-item>
         <el-form-item label="描述">
-          <el-input v-model="form.description" type="textarea" />
+          <el-input v-model="form.description" type="textarea" :rows="3" />
         </el-form-item>
         <el-form-item label="状态">
-          <el-switch v-model="form.status" :active-value="1" :inactive-value="0" />
+          <el-switch v-model="form.status" :active-value="1" :inactive-value="0" active-text="上架" inactive-text="下架" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -63,7 +77,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { productApi, categoryApi } from '@/api/index.js'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
@@ -74,6 +88,24 @@ const total = ref(0)
 const formVisible = ref(false)
 const form = ref({})
 const query = ref({ page: 1, size: 10, categoryId: null })
+
+const uploadAction = '/api/b/upload'
+const uploadHeaders = computed(() => ({
+  Authorization: `Bearer ${localStorage.getItem('adminToken')}`
+}))
+
+const handleUploadSuccess = (res) => {
+  form.value.imageUrl = res.data
+  ElMessage.success('图片上传成功')
+}
+
+const beforeUpload = (file) => {
+  const isImage = file.type.startsWith('image/')
+  const isLt10M = file.size / 1024 / 1024 < 10
+  if (!isImage) ElMessage.error('只能上传图片文件')
+  if (!isLt10M) ElMessage.error('图片大小不能超过 10MB')
+  return isImage && isLt10M
+}
 
 const search = async () => {
   loading.value = true

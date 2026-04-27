@@ -1,26 +1,28 @@
 <template>
   <div>
-    <el-button type="primary" icon="Plus" style="margin-bottom:16px" @click="openForm()">新增分类</el-button>
+    <el-button type="primary" icon="Plus" style="margin-bottom:20px" @click="openForm()">新增分类</el-button>
 
-    <el-table :data="categories" border stripe>
-      <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="name" label="分类名" />
-      <el-table-column prop="sortOrder" label="排序" width="80" />
-      <el-table-column label="操作" width="130">
-        <template #default="{ row }">
-          <el-button size="small" @click="openForm(row)">编辑</el-button>
-          <el-button size="small" type="danger" @click="del(row.id)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <el-card>
+      <el-table :data="categories" border stripe>
+        <el-table-column prop="id" label="ID" width="80" align="center" />
+        <el-table-column prop="name" label="分类名" />
+        <el-table-column prop="sortOrder" label="排序" width="100" align="center" />
+        <el-table-column label="操作" width="180" align="center">
+          <template #default="{ row }">
+            <el-button size="small" @click="openForm(row)">编辑</el-button>
+            <el-button size="small" type="danger" @click="del(row.id)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
 
-    <el-dialog v-model="formVisible" :title="form.id ? '编辑分类' : '新增分类'" width="400px">
+    <el-dialog v-model="formVisible" :title="form.id ? '编辑分类' : '新增分类'" width="450px">
       <el-form :model="form" label-width="80px">
         <el-form-item label="分类名">
-          <el-input v-model="form.name" />
+          <el-input v-model="form.name" placeholder="请输入分类名称" />
         </el-form-item>
         <el-form-item label="排序">
-          <el-input-number v-model="form.sortOrder" :min="0" />
+          <el-input-number v-model="form.sortOrder" :min="0" style="width:100%" />
         </el-form-item>
       </el-form>
       <template #footer>

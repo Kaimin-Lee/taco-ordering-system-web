@@ -32,3 +32,13 @@ export const productApi = {
   delete: (id) => request.delete(`/b/product/delete/${id}`),
   updateStatus: (id, status) => request.put(`/b/product/status/${id}`, null, { params: { status } })
 }
+
+export const uploadApi = {
+  upload: (file) => {
+    const formData = new FormData()
+    formData.append('file', file)
+    return request.post('/b/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+  }
+}
